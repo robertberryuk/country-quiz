@@ -1,5 +1,5 @@
 # ======================================================================
-# Where on Earth? — Natural Earth (styled, robust, responsive)
+# Where on Earth? (styled, robust, responsive)
 #
 # Minimalist world:
 #   - Sea: light blue; Land: white; Coastline: dark grey; Red pin per round
@@ -213,7 +213,7 @@ label.control-label{ font-weight:600; color:#2c6e9f; }
     
     tagList(
       tags$head(
-        tags$title("Where on Earth? - Natural Earth"),
+        tags$title("Where on Earth?"),
         tags$style(HTML(css))
       )
     )
@@ -344,40 +344,52 @@ server <- function(input, output, session) {
     m
   })
   
-  paint_map <- function() {
+  # Draw: sea, land, coastline, and ONE pin; clears previous each time
+  paint_map <- function(zoom_to_pin = TRUE) {
     p <- leafletProxy("map")
     p <- clearShapes(p); p <- clearMarkers(p); p <- clearGroup(p, PIN_GROUP)
+    
+    # ocean + land + coastline
     p <- addPolygons(p, data = sea_poly, fillColor = SEA, color = SEA, weight = 0, fillOpacity = 1)
-    if (!is.null(ne_land))   p <- addPolygons(p, data = ne_land, fillColor = LAND, color = LAND, weight = 0, fillOpacity = 1)
-    if (!is.null(coastline)) p <- addPolylines(p, data = coastline, color = OUTL, weight = 1.7, opacity = 1)
+    if (!is.null(ne_land))   p <- addPolygons(p, data = ne_land,   fillColor = LAND, color = LAND, weight = 0, fillOpacity = 1)
+    if (!is.null(coastline)) p <- addPolylines(p, data = coastline, color = OUTL,   weight = 1.7, opacity = 1)
+    
+    # pin (if we have coords)
     tp <- isolate(state$target_point)
     if (!is.null(tp) && is.matrix(tp) && ncol(tp) == 2 && all(is.finite(tp[1, ]))) {
       lon <- tp[1, 1]; lat <- tp[1, 2]
       p <- addAwesomeMarkers(p, lng = lon, lat = lat, icon = pin_icon,
                              options = markerOptions(riseOnHover = TRUE),
                              group = PIN_GROUP)
-      p <- setView(p, lng = lon, lat = lat, zoom = 4)
+      if (isTRUE(zoom_to_pin)) {
+        p <- setView(p, lng = lon, lat = lat, zoom = 4)
+      } else {
+        p <- fitBounds(p, lng1 = -180, lat1 = -60, lng2 = 180, lat2 = 80)  # world view
+      }
     } else {
       p <- fitBounds(p, lng1 = -180, lat1 = -60, lng2 = 180, lat2 = 80)
     }
   }
   
-  new_round <- function() {
+  
+  new_round <- function(zoom_to_pin = TRUE) {
     state$rounds <- isolate(state$rounds) + 1L
     if (is.null(ne_countries) || nrow(ne_countries) == 0) {
       state$target_name  <- NULL
       state$target_point <- NULL
       output$feedback <- renderUI(HTML("Countries not available."))
-      paint_map(); return(invisible(NULL))
+      paint_map(zoom_to_pin)
+      return(invisible(NULL))
     }
     row    <- ne_countries[sample(nrow(ne_countries), 1), ]
     pt     <- sample_point_in_country(row$geometry)
     coords <- st_coordinates(pt)
     state$target_name  <- row$name[1]
     state$target_point <- coords
+    
     updateSelectizeInput(session, "guess", selected = "")
     output$feedback <- renderUI(HTML("&nbsp;"))
-    paint_map()
+    paint_map(zoom_to_pin)
   }
   
   new_round()
@@ -414,7 +426,10 @@ server <- function(input, output, session) {
     }
   })
   
-  observeEvent(input$next_btn, { new_round() })
+  # Next: start a new round and show full world extent
+  observeEvent(input$next_btn, {
+    new_round(zoom_to_pin = FALSE)
+  })
   
   output$score <- renderUI({
     HTML(paste0(
