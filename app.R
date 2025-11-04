@@ -171,8 +171,13 @@ label.control-label{ font-weight:600; color:#2c6e9f; }
 }
 
 /* responsive map height wrapper */
-.map-wrapper{ height:80vh; min-height:420px; border-radius:12px; overflow:hidden; }
-@media (max-width:992px){ .map-wrapper{ height:60vh; } }
+.map-wrapper{
+  height:80vh; min-height:420px; border-radius:12px; overflow:hidden;
+  margin-top:24px;          /* add some breathing space from the top */
+}
+@media (max-width:992px){
+  .map-wrapper{ height:60vh; margin-top:16px; }  /* a bit less on mobile */
+}
 
 
 /* tech note card between score and footer */
