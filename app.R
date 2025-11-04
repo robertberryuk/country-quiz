@@ -174,6 +174,22 @@ label.control-label{ font-weight:600; color:#2c6e9f; }
 .map-wrapper{ height:80vh; min-height:420px; border-radius:12px; overflow:hidden; }
 @media (max-width:992px){ .map-wrapper{ height:60vh; } }
 
+
+/* tech note card between score and footer */
+.tech-note{
+  background:#f7fbff;
+  border:1px solid #e2eefc;
+  border-radius:10px;
+  padding:12px 14px;
+  margin-top:82px;
+  font-size:0.98rem;
+  color:#29465b;
+}
+.tech-note a{ font-weight:600; }
+
+
+
+
 /* footer */
 .app-footer{
   display:flex; justify-content:space-between; align-items:center; gap:1rem;
@@ -227,6 +243,14 @@ fluidRow(
       tags$hr(),
       div(class = "feedback", htmlOutput("feedback")),
       div(class = "score-panel", htmlOutput("score")),
+      div(
+        class = "tech-note",
+        HTML(
+          'Source & notes: <a href="https://github.com/robertberryuk/country-quiz" target="_blank">GitHub repo</a> &middot; ',
+          'This is a lightweight, self-contained R Shiny app. Uses Natural Earth data and caches a countries layer to a RDS; ',
+          'no database connection required.'
+        )
+      ),
       div(class = "panel-spacer"),
       div(
         class = "legal",
