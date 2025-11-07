@@ -1,6 +1,6 @@
 # Where on Earth? — minimalist country quiz
 
-A lightweight, self-contained **R Shiny** app built for the **#30DayMapChallenge** (Day 5: Minimal map).  
+A lightweight, self-contained **R Shiny** app built for the **#30DayMapChallenge** (Day 5: Earth).  
 It drops a red pin somewhere on Earth and asks you to guess the country.
 
 ---
