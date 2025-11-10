@@ -1,5 +1,5 @@
 # ======================================================================
-# Where on Earth? (styled, robust, responsive)
+# Where on Earth? 
 #
 # Minimalist world:
 #   - Sea: light blue; Land: white; Coastline: dark grey; Red pin per round
